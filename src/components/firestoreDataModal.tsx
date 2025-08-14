@@ -4,7 +4,7 @@ import { TextInput, Divider, Button, IconButton, Text } from 'react-native-paper
 import { FirestoreData } from '../types/types';
 import { format } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
-import ScreenLayout from './ScreenLayout';
+import ScreenLayout from './Layout';
 
 interface FirestoreDataModalProps {
     visible: boolean;

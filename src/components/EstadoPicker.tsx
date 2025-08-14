@@ -25,7 +25,7 @@ export default function EstadoPicker({ value, onChange, disabled }: EstadoPicker
                 onChange={(e) => onChange(e.target.value)}
                 disabled={disabled}
                 // Classes do Tailwind para estilizar o <select> parecido com o app
-                className="w-full p-4 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                className="w-full p-4 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black cursor-pointer"
             >
                 <option value="">Selecione o estado</option>
                 {estados.map((uf) => (

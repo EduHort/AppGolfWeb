@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, ReactNode, useCallback, use
 import { Alert } from 'react-native';
 import { FirestoreData } from '../types/types';
 import { getSurveysByCartId, deleteSurveyData, updateSurveyData } from '../services/firestore';
-import { useCarts } from "../context/cartsContext";
+import { useCarts } from "./cartsContext";
 
 interface SurveysContextType {
   surveys: FirestoreData[];

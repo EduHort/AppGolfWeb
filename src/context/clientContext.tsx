@@ -1,11 +1,15 @@
+// src/context/clientContext.tsx
+"use client";
+
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { Alert, Keyboard } from 'react-native';
-import { Cliente } from '../types/types';
-import { getClientByPhone, saveClientData, updateClientData } from '../services/firestore';
-import { validateClient } from '../util/validateSurvey';
+import { toast } from 'sonner';
+import { Cliente } from '@/types/types';
+import { getClientByPhone, saveClientData, updateClientData } from '@/services/firestore';
+import { validateClient } from '@/util/validateSurvey';
 
 export const initialClientState: Cliente = { nome: "", fone: "", email: null, clube: "", cidade: "", estado: "" };
 
+// A interface do contexto permanece a mesma
 interface ClientContextType {
     client: Cliente | null;
     buttonMode: "cadastrar" | "iniciar";
@@ -41,28 +45,31 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({ children }) => {
     const handleFoneBlur = async (foneInput: string): Promise<Cliente | 'not-found' | 'error'> => {
         const trimmedFone = foneInput.trim();
         if (trimmedFone.length < 10) {
-            Alert.alert("Atenção", "O número de Telefone está incompleto ou inválido.");
+            toast.warning("O número de Telefone está incompleto ou inválido.");
             setClient(null);
             setButtonMode("cadastrar");
             return 'error';
         }
 
         setLoading(true);
-        Keyboard.dismiss();
+        // MUDANÇA: Em vez de Keyboard.dismiss(), tiramos o foco do elemento ativo.
+        (document.activeElement as HTMLElement)?.blur();
         try {
             const foundClient = await getClientByPhone(trimmedFone);
             if (foundClient) {
+                toast.success(`Cliente encontrado: ${foundClient.nome}`);
                 setClient(foundClient);
                 setButtonMode("iniciar");
                 return foundClient;
             } else {
+                toast.info("Telefone não cadastrado. Preencha os dados para continuar.");
                 setButtonMode("cadastrar");
                 setClient(null);
                 return 'not-found';
             }
         } catch (error: any) {
             console.error("Erro ao buscar cliente:", error);
-            Alert.alert("Erro", error.message || "Não foi possível buscar os dados do cliente.");
+            toast.error(error.message || "Não foi possível buscar os dados do cliente.");
             setButtonMode("cadastrar");
             setClient(null);
             return 'error';
@@ -71,11 +78,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({ children }) => {
         }
     };
 
-    // Recebe os dados do formulário da tela
     const handleSaveOrUpdateClient = async (formData: Cliente): Promise<Cliente | null> => {
         const validation = validateClient(formData);
         if (!validation.isValid) {
-            Alert.alert("Erro de Validação", "Por favor, preencha os seguintes campos:\n\n- " + validation.missingFields.join("\n- "));
+            const errorMessage = "Por favor, preencha os campos obrigatórios: " + validation.missingFields.join(", ");
+            toast.error(errorMessage);
             return null;
         }
 
@@ -83,44 +90,42 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({ children }) => {
         try {
             let savedOrUpdatedClient: Cliente & { id: string };
 
-            // Se o 'client' no contexto tem um ID, a intenção é atualizar.
-            if (client?.id) {
-                // Checa se o novo fone já não pertence a outro cliente
+            if (client?.id) { // Atualizando cliente
                 if (formData.fone !== client.fone) {
                     const existing = await getClientByPhone(formData.fone);
                     if (existing) {
-                        Alert.alert("Erro", "Este número de telefone já está cadastrado para outro cliente.");
+                        toast.error("Este número de telefone já está cadastrado para outro cliente.");
                         return null;
                     }
                 }
                 const result = await updateClientData({ ...formData, id: client.id });
                 if (!result.success) {
-                    Alert.alert("Erro", result.message || "Não foi possível atualizar o cliente.");
+                    toast.error(result.message || "Não foi possível atualizar o cliente.");
                     return null;
                 }
                 savedOrUpdatedClient = { ...formData, id: client.id };
             } else { // Cadastrando um novo cliente
                 const existing = await getClientByPhone(formData.fone);
                 if (existing) {
-                    Alert.alert("Erro", "Este número de telefone já está cadastrado.");
+                    toast.error("Este número de telefone já está cadastrado.");
                     return null;
                 }
                 const result = await saveClientData(formData);
                 if (!result.success || !result.id) {
-                    Alert.alert("Erro", result.message || "Não foi possível salvar o cliente.");
+                    toast.error(result.message || "Não foi possível salvar o cliente.");
                     return null;
                 }
                 savedOrUpdatedClient = { ...formData, id: result.id };
             }
 
-            setClient(savedOrUpdatedClient); // Atualiza o client oficial do contexto
+            setClient(savedOrUpdatedClient);
             setButtonMode("iniciar");
             setModalVisible(false);
-            Alert.alert("Sucesso", "Dados do cliente salvos!");
+            toast.success("Dados do cliente salvos!");
             return savedOrUpdatedClient;
         } catch (error: any) {
             console.error("Erro ao salvar/atualizar cliente:", error);
-            Alert.alert("Erro", error.message || "Ocorreu um problema ao salvar os dados.");
+            toast.error(error.message || "Ocorreu um problema ao salvar os dados.");
             return null;
         } finally {
             setLoading(false);
@@ -139,15 +144,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({ children }) => {
 
     return (
         <ClientContext.Provider value={{
-            client,
-            buttonMode,
-            modalVisible,
-            loading,
-            handleFoneBlur,
-            handleSaveOrUpdateClient,
-            openClientModal,
-            closeClientModal,
-            resetClientContextState,
+            client, buttonMode, modalVisible, loading,
+            handleFoneBlur, handleSaveOrUpdateClient, openClientModal, closeClientModal, resetClientContextState,
         }}>
             {children}
         </ClientContext.Provider>

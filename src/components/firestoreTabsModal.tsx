@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Modal } from 'react-native';
 import { Text, TextInput, Button, Divider, IconButton } from 'react-native-paper';
 import { FirestoreData, TabsData } from '../types/types';
-import ScreenLayout from './ScreenLayout';
+import ScreenLayout from './Layout';
 import { Picker } from '@react-native-picker/picker';
 
 interface TabsDataEditModalProps {

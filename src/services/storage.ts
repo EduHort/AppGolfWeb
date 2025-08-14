@@ -1,6 +1,6 @@
 // Local: src/lib/storage.ts
 
-export enum AsyncStorageKeys {
+export enum LocalStorageKeys {
     USER_DATA = "userData",
     CLIENT_DATA = "clientData",
     CART_DATA = "cartData",
@@ -16,7 +16,7 @@ export enum AsyncStorageKeys {
  * @param key A chave para o armazenamento.
  * @param value O valor a ser salvo (será convertido para JSON).
  */
-export function saveData<T>(key: AsyncStorageKeys | string, value: T): void {
+export function saveData<T>(key: LocalStorageKeys | string, value: T): void {
     try {
         // Garante que o código só rode no ambiente do navegador.
         if (typeof window !== 'undefined') {
@@ -34,7 +34,7 @@ export function saveData<T>(key: AsyncStorageKeys | string, value: T): void {
  * @param key A chave do valor a ser buscado.
  * @returns O valor encontrado (convertido de JSON) ou null se não existir.
  */
-export function getData<T>(key: AsyncStorageKeys | string): T | null {
+export function getData<T>(key: LocalStorageKeys | string): T | null {
     try {
         if (typeof window === 'undefined') {
             return null;
@@ -52,7 +52,7 @@ export function getData<T>(key: AsyncStorageKeys | string): T | null {
  * Remove um valor específico do localStorage.
  * @param key A chave a ser removida.
  */
-export function removeData(key: AsyncStorageKeys | string): void {
+export function removeData(key: LocalStorageKeys | string): void {
     try {
         if (typeof window !== 'undefined') {
             localStorage.removeItem(key);
@@ -68,12 +68,12 @@ export function removeData(key: AsyncStorageKeys | string): void {
  */
 export function clearTemporarySurveyData(): void {
     const keysToRemove = [
-        AsyncStorageKeys.VOLTAGE_DATA,
-        AsyncStorageKeys.CART_DATA,
-        AsyncStorageKeys.CARTS_DATA,
-        AsyncStorageKeys.CLIENT_DATA,
-        AsyncStorageKeys.DENSITY_DATA,
-        AsyncStorageKeys.COMENTARIO_DATA
+        LocalStorageKeys.VOLTAGE_DATA,
+        LocalStorageKeys.CART_DATA,
+        LocalStorageKeys.CARTS_DATA,
+        LocalStorageKeys.CLIENT_DATA,
+        LocalStorageKeys.DENSITY_DATA,
+        LocalStorageKeys.COMENTARIO_DATA
     ];
 
     for (const key of keysToRemove) {

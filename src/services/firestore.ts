@@ -1,5 +1,5 @@
 import { addDoc, query, where, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
-import { questionariosCollection, clientesCollection, serverTimestamp, carrinhosCollection } from '../firebaseConfig';
+import { questionariosCollection, clientesCollection, serverTimestamp, carrinhosCollection } from '../firebase';
 import { Carrinho, Cliente, FirestoreData, SurveyData } from '../types/types';
 
 export async function saveSurveyData(survey: SurveyData): Promise<{ success: boolean; message: string; id?: string }> {
